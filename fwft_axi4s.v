@@ -39,10 +39,12 @@ module fwft_axi4s #(
     wire consume;
     wire wr_en_true;
 
+    //Handshake check
     assign consume = t_valid && t_ready;
+    //Can write a request when you and enabeled to write and fifo is not full
     assign wr_en_true = wr_en && !full;
 
-    //Handshake
+    //wr logic
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             wr_bin_pointer <= 0;
@@ -52,7 +54,7 @@ module fwft_axi4s #(
         end
     end
 
-    //FWFT
+    //rd logic
     always @(posedge rd_clk or posedge rst) begin
         if (rst) begin
             rd_bin_pointer <= 0;
