@@ -48,6 +48,7 @@ module fwft_axi4s #(
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             wr_bin_pointer <= 0;
+    //When a word is requested and fifo is not full load data into din and increment pointer
         end else if (wr_en_true) begin
             mem[wr_bin_pointer[DEPTH-1:0]] <= din;
             wr_bin_pointer <= wr_bin_pointer + 1'b1;
@@ -60,7 +61,9 @@ module fwft_axi4s #(
             rd_bin_pointer <= 0;
             dout <= 0;
             dout_valid <= 0;
+    //Either read when handshake is valid or when there is no word in dout and we have data in fifo
         end else if (consume || (!dout_valid && !fifo_empty)) begin
+    //Check for words in fifo if so load it into dout and increment counter
             if (!fifo_empty) begin
                 dout <= mem[rd_bin_pointer[DEPTH-1:0]];
                 rd_bin_pointer <= rd_bin_pointer + 1'b1;
