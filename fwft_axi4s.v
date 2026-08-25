@@ -4,16 +4,16 @@ module fwft_axi4s #(
     parameter DEPTH = 5,
     parameter SIZE  = 2**DEPTH
 )(
-    input  wire        rst,
-    input  wire        wr_clk,
-    input  wire        wr_en,
-    input  wire [31:0] din,
-    output reg         full,
-    input  wire        rd_clk,
-    input  wire        t_ready,
+    input wire rst,
+    input wire wr_clk,
+    input wire wr_en,
+    input wire [31:0] din,
+    output reg full,
+    input wire rd_clk,
+    input wire t_ready,
     output wire [31:0] tdata,
-    output wire        t_valid,
-    output wire        empty
+    output wire t_valid,
+    output wire empty
 );
 
     reg [DEPTH:0] wr_bin_pointer;
@@ -42,6 +42,7 @@ module fwft_axi4s #(
     assign consume = t_valid && t_ready;
     assign wr_en_true = wr_en && !full;
 
+    //Handshake
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             wr_bin_pointer <= 0;
@@ -51,6 +52,7 @@ module fwft_axi4s #(
         end
     end
 
+    //FWFT
     always @(posedge rd_clk or posedge rst) begin
         if (rst) begin
             rd_bin_pointer <= 0;
@@ -67,12 +69,11 @@ module fwft_axi4s #(
         end
     end
 
-    assign wr_gray_pointer =
-        wr_bin_pointer ^ (wr_bin_pointer >> 1);
+    //Bin2gray
+    assign wr_gray_pointer = wr_bin_pointer ^ (wr_bin_pointer >> 1);
+    assign rd_gray_pointer = rd_bin_pointer ^ (rd_bin_pointer >> 1);
 
-    assign rd_gray_pointer =
-        rd_bin_pointer ^ (rd_bin_pointer >> 1);
-
+    //Reset or sync pointer
     always @(posedge rd_clk or posedge rst) begin
         if (rst) begin
             wr_gray_sync_1 <= 0;
@@ -83,6 +84,7 @@ module fwft_axi4s #(
         end
     end
 
+    //Reset or sync pointer
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             rd_gray_sync_1 <= 0;
@@ -93,6 +95,7 @@ module fwft_axi4s #(
         end
     end
 
+    //Empty check
     always @(posedge rd_clk or posedge rst) begin
         if (rst) begin
             fifo_empty <= 1'b1;
@@ -101,6 +104,7 @@ module fwft_axi4s #(
         end
     end
 
+    //Full check with wraparound
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             full <= 1'b0;
