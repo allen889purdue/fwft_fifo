@@ -2,7 +2,7 @@
 
 module fwft_axi4s #(
     parameter DEPTH = 5,
-    parameter SIZE  = 2**DEPTH
+    parameter SIZE = 2**DEPTH
 )(
     input wire rst,
     input wire wr_clk,
