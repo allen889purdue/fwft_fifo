@@ -2,21 +2,24 @@
 
 module iq_generator #(
     parameter PW = 32,
-    parameter ADDR_WIDTH = 8
+    parameter ADDR_WIDTH = 8 //We are taking the top 8 bits of the phase
 )(
-    input  wire              clk,
-    input  wire              rst,
-    input  wire [PW-1:0]     phase_step,
-    output wire [31:0]       iq_data,
-    output wire              iq_valid,
-    input  wire              iq_ready
+    input wire clk,
+    input wire rst,
+    input wire [PW-1:0] phase_step,
+    output wire [31:0] iq_data,
+    output wire iq_valid,
+    input wire iq_ready
 );
 
+    //Define phase size
     reg [PW-1:0] phase;
 
     wire sample_transfer;
+    //data handshake
     assign sample_transfer = iq_valid && iq_ready;
 
+    //Phase accumulator just increment by step when handshake is valid
     always @(posedge clk or posedge rst) begin
         if (rst)
             phase <= 0;
@@ -24,16 +27,13 @@ module iq_generator #(
             phase <= phase + phase_step;
     end
 
+    //Set ups for sin and cos data or i/q
     wire [ADDR_WIDTH-1:0] i_index;
-
     assign i_index = phase[PW-1 : PW-ADDR_WIDTH];
-    
     wire [PW-1:0] q_phase;
 
-    assign q_phase = phase + (1 << (PW-2)); //cos shift
-
+    assign q_phase = phase + (1 << (PW-2)); //q/cos shift
     wire [ADDR_WIDTH-1:0] q_index;
-
     assign q_index = q_phase[PW-1 : PW-ADDR_WIDTH];
 
     reg signed [15:0] sine_lut [0:(1 << ADDR_WIDTH)-1];
@@ -304,7 +304,6 @@ module iq_generator #(
     assign q_sample = sine_lut[q_index];
 
     assign iq_data = {i_sample, q_sample};
-
-    assign iq_valid = 1'b1;
+    assign iq_valid = 1'b1; //Only way to pause is if iq is not ready/ fifo is full
 
 endmodule
