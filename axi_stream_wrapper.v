@@ -18,6 +18,6 @@ module axi_stream_wrapper #(
 
     assign tdata  = fifo_data; //I got my gogogogoogogogoggo gadget flow
     assign tvalid = !fifo_empty; //Can only consume when not empty
-    assign fifo_rd_en = tvalid && tready; //Consume word only after handshake
+    assign fifo_rd_en = tvalid && tready; //Attempt to consume only after handshake is valid
 
 endmodule
