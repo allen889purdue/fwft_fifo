@@ -36,9 +36,9 @@ module main #(
         .iq_ready(iq_ready)
     );
 
-    assign fifo_wr_en = iq_valid && !fifo_full;
-    assign iq_ready = !fifo_full;
-    assign fifo_rd_en = tvalid && tready;
+    assign fifo_wr_en = iq_valid && !fifo_full; //Write to fifo when i/q data is valid and fifo is not full
+    assign iq_ready = !fifo_full; //Tell i/q generator when fifo can accept data
+    assign fifo_rd_en = tvalid && tready; //Read when handshake occours
 
     fwft_axi4s #(
         .DEPTH(DEPTH),
@@ -55,6 +55,7 @@ module main #(
         .empty(fifo_empty)
     );
 
+    //Send data to AXI
     assign tdata  = fifo_dout;
     assign tvalid = !fifo_empty;
 
