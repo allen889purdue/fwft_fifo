@@ -1,5 +1,8 @@
 `timescale 1ns / 1ps
 
+//Converts the FIFO output into the AXI4-Stream interface using tdata, tvalid, and tready
+//Allows the downstream module to control data flow through the valid-ready handshake
+
 module axi_stream_wrapper #(
     parameter DATA_WIDTH = 32
 )(
