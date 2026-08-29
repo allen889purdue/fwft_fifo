@@ -14,4 +14,4 @@ This project started with me implementing a simple synchronous FIFO which just a
 store packets of data across multiple machines in a shared clock for both writing and reading, which 
 isn't very interesting, so I started reading about different implementations.
 
-From there I read this blog ([https://www.01signal.com/](url))
+From there I read this blog [https://www.01signal.com/](url) to get basic understandings of the use cases for 
