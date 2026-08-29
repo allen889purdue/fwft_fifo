@@ -10,6 +10,6 @@
 
 
 ## Introduction
-    This project started with me implementing a simple synchronous FIFO which just allows you to retrieve and 
+This project started with me implementing a simple synchronous FIFO which just allows you to retrieve and 
 store packets of data across multiple machines in a shared clock for both writing and reading, which 
 isn't very interesting, so i started reading about different implementations.
