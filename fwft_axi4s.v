@@ -78,7 +78,7 @@ module fwft_axi4s #(
     assign wr_gray_pointer = wr_bin_pointer ^ (wr_bin_pointer >> 1);
     assign rd_gray_pointer = rd_bin_pointer ^ (rd_bin_pointer >> 1);
 
-    //Reset or sync pointer
+    //Reset or sync pointer using double flop of wr in rd clk
     always @(posedge rd_clk or posedge rst) begin
         if (rst) begin
             wr_gray_sync_1 <= 0;
@@ -89,7 +89,7 @@ module fwft_axi4s #(
         end
     end
 
-    //Reset or sync pointer
+    //Reset or sync pointer using double flop of rd in wr clk
     always @(posedge wr_clk or posedge rst) begin
         if (rst) begin
             rd_gray_sync_1 <= 0;
@@ -105,6 +105,7 @@ module fwft_axi4s #(
         if (rst) begin
             fifo_empty <= 1'b1;
         end else begin
+            //FIFO is empty if the rd pointer has caught up to the stable wr pointer
             fifo_empty <= (rd_gray_pointer == wr_gray_sync_2);
         end
     end
@@ -114,10 +115,8 @@ module fwft_axi4s #(
         if (rst) begin
             full <= 1'b0;
         end else begin
-            full <= (wr_gray_pointer == {
-                ~rd_gray_sync_2[DEPTH:DEPTH-1],
-                 rd_gray_sync_2[DEPTH-2:0]
-            });
+            //It is full if the write pointer is equal to the rd pointer's inverted 2 msb and rest of data
+            full <= (wr_gray_pointer == {~rd_gray_sync_2[DEPTH:DEPTH-1], rd_gray_sync_2[DEPTH-2:0]});
         end
     end
 
